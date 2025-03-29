@@ -41,7 +41,9 @@ const Home = () => {
     const { user } = useContext(UserDataContext)
 
     useEffect(() => {
+        console.log(user)
         socket.emit("join", { userType: "user", userId: user._id })
+        // socket.emit("join", { userType: "user", userId: user.uid })
     }, [ user ])
 
     socket.on('ride-confirmed', ride => {
@@ -184,18 +186,28 @@ const Home = () => {
     }
 
     async function createRide() {
-        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, {
-            pickup,
-            destination,
-            vehicleType
-        }, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        })
-
-
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_BASE_URL}/rides/create`,
+                {
+                    pickup,
+                    destination,
+                    vehicleType
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+    
+            console.log("🚗 Ride Created Successfully:", JSON.stringify(response.data, null, 2));
+    
+        } catch (error) {
+            console.error("❌ Error Creating Ride:", error.response ? error.response.data : error.message);
+        }
     }
+    
 
     return (
         <div className='h-screen relative overflow-hidden'>

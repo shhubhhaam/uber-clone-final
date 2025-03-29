@@ -19,9 +19,11 @@ module.exports.createRide = async (req, res) => {
 
         const pickupCoordinates = await mapService.getAddressCoordinate(pickup);
 
+        console.log("Pickup coordinates:",pickupCoordinates)
 
+        const captainsInRadius = await mapService.getCaptainsInTheRadius(pickupCoordinates.ltd, pickupCoordinates.lng, 2000);
 
-        const captainsInRadius = await mapService.getCaptainsInTheRadius(pickupCoordinates.ltd, pickupCoordinates.lng, 2);
+        console.log("Captain Radius:",captainsInRadius);
 
         ride.otp = ""
 
@@ -33,9 +35,7 @@ module.exports.createRide = async (req, res) => {
                 event: 'new-ride',
                 data: rideWithUser
             })
-
         })
-
     } catch (err) {
 
         console.log(err);

@@ -7,6 +7,7 @@ import axios from 'axios'
 const UserLogin = () => {
   const [ email, setEmail ] = useState('')
   const [ password, setPassword ] = useState('')
+  const [ isLoading, setIsLoading ] = useState(false)
   const [ userData, setUserData ] = useState({})
 
   const { user, setUser } = useContext(UserDataContext)
@@ -16,21 +17,26 @@ const UserLogin = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    setIsLoading(true)
+    try {
+      const userData = {
+        email: email,
+        password: password
+      }
 
-    const userData = {
-      email: email,
-      password: password
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData)
+
+      if (response.status === 200) {
+        const data = response.data
+        setUser(data.user)
+        localStorage.setItem('token', data.token)
+        navigate('/home')
+      }
+    } catch (error) {
+      console.error('Login failed:', error)
+    } finally {
+      setIsLoading(false)
     }
-
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData)
-
-    if (response.status === 200) {
-      const data = response.data
-      setUser(data.user)
-      localStorage.setItem('token', data.token)
-      navigate('/home')
-    }
-
 
     setEmail('')
     setPassword('')
@@ -69,8 +75,11 @@ const UserLogin = () => {
           />
 
           <button
+            disabled={isLoading}
             className='bg-[#111] text-white font-semibold mb-3 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
-          >Login</button>
+          >
+            {isLoading ? 'Logging in...' : 'Login'}
+          </button>
 
         </form>
         <p className='text-center'>New here? <Link to='/signup' className='text-blue-600'>Create new Account</Link></p>
